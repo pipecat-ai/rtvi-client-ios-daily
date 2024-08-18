@@ -1,5 +1,5 @@
 {
-  "originHash" : "50bb2a5b21461aa7493cf78fe0169fb3db11417f3af5b055c8a1d351f3113eca",
+  "originHash" : "3727a83b345ca31ffd1b29e7ad73fe2a4a2f6df9584ce32214fcc2436ef5c85d",
   "pins" : [
     {
       "identity" : "daily-client-ios",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/rtvi-ai/rtvi-client-ios/",
       "state" : {
-        "revision" : "52c54e127725422de8fc25af148d7ceb40d21a87",
-        "version" : "0.1.0"
+        "revision" : "4cecdb29d9a642cd407171d17fba64efadd95d50",
+        "version" : "0.1.1"
       }
     }
   ],
