@@ -13,6 +13,7 @@ public class DailyTransport: Transport {
     private var botUser: RTVIClientIOS.Participant?
     private var _selectedCam: MediaDeviceInfo?
     private var _selectedMic: MediaDeviceInfo?
+    private var clientReady: Bool = false
 
     // callback
     public var onMessage: ((VoiceMessageInbound) -> Void)? = nil
@@ -232,6 +233,18 @@ extension DailyTransport: CallClientDelegate {
 
     public func callClient(_ callClient: CallClient, participantUpdated participant: Daily.Participant) {
         self.updateBotUser()
+        if(!self.clientReady && !participant.info.isLocal && participant.media?.microphone.state == .playable) {
+            self.clientReady = true
+            let clientReadyMessage = VoiceMessageOutbound(
+                type: VoiceMessageOutbound.MessageType.CLIENT_READY,
+                data: nil
+            )
+            do {
+                try self.sendMessage(message: clientReadyMessage)
+            } catch {
+                self.delegate?.onError(message: "Failed to send message that the client is ready \(error)")
+            }
+        }
     }
 
     public func callClient(_ callClient: CallClient, participantLeft participant: Daily.Participant, withReason reason: ParticipantLeftReason) {
@@ -275,6 +288,7 @@ extension DailyTransport: CallClientDelegate {
         if (state == .left) {
             self.setState(state: .disconnected)
             self.delegate?.onDisconnected()
+            self.clientReady = false
         } else if (state == .joined) {
             self.setState(state: .connected)
             self.delegate?.onConnected()
