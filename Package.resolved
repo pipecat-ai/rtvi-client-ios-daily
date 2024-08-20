@@ -13,10 +13,10 @@
     {
       "identity" : "rtvi-client-ios",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/rtvi-ai/rtvi-client-ios/",
+      "location" : "https://github.com/rtvi-ai/rtvi-client-ios.git",
       "state" : {
-        "revision" : "cb4bcd302b7991822bfeabbde23501a00c1cf752",
-        "version" : "0.1.3"
+        "revision" : "6dcf1d8de9895f11d34ab93800bbb3ccb6c5decb",
+        "version" : "0.1.4"
       }
     }
   ],

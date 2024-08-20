@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         // Local dependency
         //.package(path: "../rtvi-client-ios"),
-        .package(url: "https://github.com/rtvi-ai/rtvi-client-ios.git", from: "0.1.3"),
+        .package(url: "https://github.com/rtvi-ai/rtvi-client-ios.git", from: "0.1.4"),
         .package(url: "https://github.com/daily-co/daily-client-ios.git", from: "0.22.0")
     ],
     targets: [
