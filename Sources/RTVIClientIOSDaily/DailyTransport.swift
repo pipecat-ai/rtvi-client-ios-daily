@@ -3,7 +3,6 @@ import RTVIClientIOS
 import Daily
 
 /// An RTVI transport to connect with Daily.
-@MainActor
 public class DailyTransport: Transport {
     private var callClient: CallClient?
     private var voiceClientOptions: RTVIClientIOS.VoiceClientOptions
