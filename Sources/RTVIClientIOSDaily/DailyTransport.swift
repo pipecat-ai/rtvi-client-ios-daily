@@ -14,6 +14,7 @@ public class DailyTransport: Transport {
     private var _selectedCam: MediaDeviceInfo?
     private var _selectedMic: MediaDeviceInfo?
     private var clientReady: Bool = false
+    private var _tracks: Tracks?
 
     // callback
     public var onMessage: ((VoiceMessageInbound) -> Void)? = nil
@@ -48,8 +49,16 @@ public class DailyTransport: Transport {
         self.callClient?.delegate = self
     }
 
-    func updateBotUser() {
+    func updateBotUserAndTracks() {
         self.botUser = self.callClient?.participants.remote.first?.value.toRtvi()
+        guard let currentTracks = self.tracks() else {
+            // Nothing to do here, no tracks available yet
+            return
+        }
+        if( self._tracks != currentTracks ){
+            self._tracks = currentTracks
+            self.delegate?.onTracksUpdated(tracks: currentTracks)
+        }
     }
 
     public func initDevices() async throws {
@@ -199,18 +208,28 @@ public class DailyTransport: Transport {
 
         let local = participants.local
         let bot = participants.all.values.first { !$0.info.isLocal }
+        
+        let localVideoTrackId = local.media?.camera.track?.toRtvi()
+        // Registering the track so we can retrieve it later inside the VoiceClientVideoView
+        if let localVideoTrackId = localVideoTrackId {
+            VideoTrackRegistry.registerTrack(originalTrack: local.media!.camera.track!, mediaTrackId: localVideoTrackId)
+        }
+        
+        let botVideoTrackId = bot?.media?.camera.track?.toRtvi()
+        // Registering the track so we can retrieve it later inside the VoiceClientVideoView
+        if let botVideoTrackId = botVideoTrackId {
+            VideoTrackRegistry.registerTrack(originalTrack: bot!.media!.camera.track!, mediaTrackId: botVideoTrackId)
+        }
 
         return Tracks(
             local: ParticipantTracks(
                 audio: local.media?.microphone.track?.toRtvi(),
-                video: local.media?.camera.track?.toRtvi()
+                video: localVideoTrackId
             ),
-            bot: bot.flatMap { bot in
-                ParticipantTracks(
-                    audio: bot.media?.microphone.track?.toRtvi(),
-                    video: bot.media?.camera.track?.toRtvi()
-                )
-            }
+            bot: ParticipantTracks(
+                audio: bot?.media?.microphone.track?.toRtvi(),
+                video: botVideoTrackId
+            )
         )
     }
     
@@ -225,14 +244,14 @@ extension DailyTransport: CallClientDelegate {
 
     public func callClient(_ callClient: CallClient, participantJoined participant: Daily.Participant) {
         self.delegate?.onParticipantJoined(participant: participant.toRtvi())
-        self.updateBotUser()
+        self.updateBotUserAndTracks()
         if (!participant.info.isLocal && self.botUser != nil){
             self.delegate?.onBotConnected(participant: self.botUser!)
         }
     }
 
     public func callClient(_ callClient: CallClient, participantUpdated participant: Daily.Participant) {
-        self.updateBotUser()
+        self.updateBotUserAndTracks()
         if(!self.clientReady && !participant.info.isLocal && participant.media?.microphone.state == .playable) {
             self.clientReady = true
             let clientReadyMessage = VoiceMessageOutbound(
@@ -249,7 +268,7 @@ extension DailyTransport: CallClientDelegate {
 
     public func callClient(_ callClient: CallClient, participantLeft participant: Daily.Participant, withReason reason: ParticipantLeftReason) {
         self.delegate?.onParticipantLeft(participant: participant.toRtvi())
-        self.updateBotUser()
+        self.updateBotUserAndTracks()
         if(!participant.info.isLocal && self.botUser == nil){
             self.delegate?.onBotDisconnected(participant: participant.toRtvi())
         }
