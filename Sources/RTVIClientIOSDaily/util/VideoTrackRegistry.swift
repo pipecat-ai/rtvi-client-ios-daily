@@ -10,15 +10,15 @@ final class VideoTrackRegistry {
     static func registerTrack(originalTrack: VideoTrack, mediaTrackId: MediaTrackId) {
         trackMap[mediaTrackId] = originalTrack
     }
-    
+
     // Retrieves the original track
     static func getTrack(mediaTrackId: MediaTrackId) -> VideoTrack? {
-        trackMap[mediaTrackId]
+        return trackMap[mediaTrackId]
     }
 
     // Method to clear all tracks from the registry
     static func clearRegistry() {
         trackMap.removeAll()
     }
-    
+
 }
