@@ -5,7 +5,6 @@ import Daily
 /// An RTVI transport to connect with Daily.
 @MainActor
 public class DailyTransport: Transport {
-    
     private var callClient: CallClient?
     private var voiceClientOptions: RTVIClientIOS.VoiceClientOptions
 
@@ -15,6 +14,7 @@ public class DailyTransport: Transport {
     private var _selectedMic: MediaDeviceInfo?
     private var clientReady: Bool = false
     private var _tracks: Tracks?
+    private var _expiry: Int? = nil
 
     // callback
     public var onMessage: ((VoiceMessageInbound) -> Void)? = nil
@@ -114,7 +114,11 @@ public class DailyTransport: Transport {
                 isEnabled: .set(voiceClientOptions.enableMic)
             )
         ))
-        _ = try await self.callClient?.join(url: roomURL, token: meetingToken, settings: joinSettings)
+        let joinData = try await self.callClient?.join(url: roomURL, token: meetingToken, settings: joinSettings)
+        let callConfig = joinData?.callConfig
+        self._expiry = callConfig.flatMap { config in
+            [config.roomExpiration, config.tokenExpiration].compactMap { $0 }.min()
+        }
     }
 
     public func disconnect() async throws{
@@ -124,6 +128,7 @@ public class DailyTransport: Transport {
         self.devicesInitialized = false
         self._selectedCam = nil
         self._selectedMic = nil
+        self._expiry = nil
     }
 
     public func getAllMics() -> [RTVIClientIOS.MediaDeviceInfo] {
@@ -209,6 +214,8 @@ public class DailyTransport: Transport {
         let local = participants.local
         let bot = participants.all.values.first { !$0.info.isLocal }
         
+        VideoTrackRegistry.clearRegistry()
+        
         let localVideoTrackId = local.media?.camera.track?.toRtvi()
         // Registering the track so we can retrieve it later inside the VoiceClientVideoView
         if let localVideoTrackId = localVideoTrackId {
@@ -234,8 +241,13 @@ public class DailyTransport: Transport {
     }
     
     public func release() {
+        VideoTrackRegistry.clearRegistry()
         // It should automatically trigger deinit inside CallClient
         self.callClient = nil
+    }
+    
+    public func expiry() -> Int? {
+        self._expiry
     }
 
 }
