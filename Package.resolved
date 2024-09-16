@@ -1,24 +1,25 @@
 {
-  "originHash" : "489bf20aa6d35d4fc1b91d39f6ca8e7be9163c4eb7eedf95cb645b04985cc5d6",
-  "pins" : [
-    {
-      "identity" : "daily-client-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/daily-co/daily-client-ios.git",
-      "state" : {
-        "revision" : "e42038400233ada3c361d7a96c4e602aaedee369",
-        "version" : "0.23.0"
+  "object": {
+    "pins": [
+      {
+        "package": "Daily",
+        "repositoryURL": "https://github.com/daily-co/daily-client-ios.git",
+        "state": {
+          "branch": null,
+          "revision": "e42038400233ada3c361d7a96c4e602aaedee369",
+          "version": "0.23.0"
+        }
+      },
+      {
+        "package": "RTVIClientIOS",
+        "repositoryURL": "https://github.com/rtvi-ai/rtvi-client-ios.git",
+        "state": {
+          "branch": null,
+          "revision": "a0984d402ae37a9e22aa54ed73ec3d8110d3664b",
+          "version": "0.1.8"
+        }
       }
-    },
-    {
-      "identity" : "rtvi-client-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/rtvi-ai/rtvi-client-ios.git",
-      "state" : {
-        "revision" : "a4af2c6b83fe2a0ac4e791615d73de907815c50e",
-        "version" : "0.1.7"
-      }
-    }
-  ],
-  "version" : 3
+    ]
+  },
+  "version": 1
 }

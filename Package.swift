@@ -1,4 +1,4 @@
-// swift-tools-version: 5.10
+// swift-tools-version:5.5
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         // Local dependency
         //.package(path: "../rtvi-client-ios"),
-        .package(url: "https://github.com/rtvi-ai/rtvi-client-ios.git", from: "0.1.7"),
+        .package(url: "https://github.com/rtvi-ai/rtvi-client-ios.git", from: "0.1.8"),
         .package(url: "https://github.com/daily-co/daily-client-ios.git", from: "0.23.0")
     ],
     targets: [
