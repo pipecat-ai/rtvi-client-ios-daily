@@ -320,8 +320,10 @@ extension DailyTransport: CallClientDelegate {
             self.delegate?.onDisconnected()
             self.clientReady = false
         } else if (state == .joined) {
-            self.setState(state: .connected)
-            self.delegate?.onConnected()
+            if (self.state() != .disconnecting){
+                self.setState(state: .connected)
+                self.delegate?.onConnected()
+            }
         }
     }
 
