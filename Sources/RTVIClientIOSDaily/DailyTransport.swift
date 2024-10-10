@@ -5,7 +5,7 @@ import Daily
 /// An RTVI transport to connect with Daily.
 public class DailyTransport: Transport {
     private var callClient: CallClient?
-    private var voiceClientOptions: RTVIClientIOS.VoiceClientOptions
+    private var voiceClientOptions: RTVIClientIOS.RTVIClientOptions
 
     private var devicesInitialized: Bool = false
     private var botUser: RTVIClientIOS.Participant?
@@ -16,11 +16,11 @@ public class DailyTransport: Transport {
     private var _expiry: Int? = nil
 
     // callback
-    public var onMessage: ((VoiceMessageInbound) -> Void)? = nil
+    public var onMessage: ((RTVIMessageInbound) -> Void)? = nil
 
     /// The object that acts as the delegate of the voice client.
-    public weak var delegate: VoiceClientDelegate? = nil
-    private var _state: TransportState = .idle
+    public weak var delegate: RTVIClientDelegate? = nil
+    private var _state: TransportState = .disconnected
 
     private lazy var localAudioLevelProcessor = AudioLevelProcessor { isSpeaking in
         if isSpeaking {
@@ -42,7 +42,7 @@ public class DailyTransport: Transport {
         }
     }
 
-    required public init(options: RTVIClientIOS.VoiceClientOptions) {
+    required public init(options: RTVIClientIOS.RTVIClientOptions) {
         self.voiceClientOptions = options
         self.callClient = CallClient()
         self.callClient?.delegate = self
@@ -184,10 +184,14 @@ public class DailyTransport: Transport {
         self.callClient?.inputs.microphone.isEnabled ?? false
     }
 
-    public func sendMessage(message: RTVIClientIOS.VoiceMessageOutbound) throws {
+    public func sendMessage(message: RTVIClientIOS.RTVIMessageOutbound) throws {
         let messageToSend = try JSONEncoder().encode(message);
         //print("Sending app message \(String(data: messageToSend, encoding: .utf8))")
         self.callClient?.sendAppMessage(json: messageToSend, to: .all, completion: nil)
+    }
+    
+    public func isConnected() -> Bool {
+        return [.connected, .ready].contains(self._state)
     }
 
     public func state() -> RTVIClientIOS.TransportState {
@@ -265,8 +269,8 @@ extension DailyTransport: CallClientDelegate {
         self.updateBotUserAndTracks()
         if(!self.clientReady && !participant.info.isLocal && participant.media?.microphone.state == .playable) {
             self.clientReady = true
-            let clientReadyMessage = VoiceMessageOutbound(
-                type: VoiceMessageOutbound.MessageType.CLIENT_READY,
+            let clientReadyMessage = RTVIMessageOutbound(
+                type: RTVIMessageOutbound.MessageType.CLIENT_READY,
                 data: nil
             )
             do {
@@ -305,7 +309,7 @@ extension DailyTransport: CallClientDelegate {
         do {
             // print("Received app message \(String(data: jsonData, encoding: .utf8))")
             let appMessage = try JSONDecoder().decode(
-                VoiceMessageInbound.self,
+                RTVIMessageInbound.self,
                 from: jsonData
             )
             self.onMessage?(appMessage)
@@ -320,8 +324,10 @@ extension DailyTransport: CallClientDelegate {
             self.delegate?.onDisconnected()
             self.clientReady = false
         } else if (state == .joined) {
-            self.setState(state: .connected)
-            self.delegate?.onConnected()
+            if (self.state() != .disconnecting){
+                self.setState(state: .connected)
+                self.delegate?.onConnected()
+            }
         }
     }
 
