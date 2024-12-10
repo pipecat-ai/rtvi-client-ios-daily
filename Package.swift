@@ -4,26 +4,26 @@
 import PackageDescription
 
 let package = Package(
-    name: "RTVIClientIOSDaily",
+    name: "PipecatClientIOSDaily",
     platforms: [
         .iOS(.v13)
     ],
     products: [
         .library(
-            name: "RTVIClientIOSDaily",
+            name: "PipecatClientIOSDaily",
             targets: ["RTVIClientIOSDaily"]),
     ],
     dependencies: [
         // Local dependency
-        //.package(path: "../rtvi-client-ios"),
-        .package(url: "https://github.com/rtvi-ai/rtvi-client-ios.git", from: "0.2.0"),
+//        .package(path: "../pipecat-client-ios"),
+         .package(url: "https://github.com/pipecat-ai/pipecat-client-ios.git", from: "0.3.0"),
         .package(url: "https://github.com/daily-co/daily-client-ios.git", from: "0.23.0")
     ],
     targets: [
         .target(
             name: "RTVIClientIOSDaily",
             dependencies: [
-                .product(name: "RTVIClientIOS", package: "rtvi-client-ios"),
+                .product(name: "PipecatClientIOS", package: "pipecat-client-ios"),
                 .product(name: "Daily", package: "daily-client-ios")
             ]),
         .testTarget(
